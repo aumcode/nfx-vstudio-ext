@@ -1,11 +1,9 @@
-﻿using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Text;
+﻿using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Utilities;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Text;
 
 namespace NFX.VisualStudio
