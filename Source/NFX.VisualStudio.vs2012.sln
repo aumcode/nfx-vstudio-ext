@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{5C59CADE-B272-46A2-9513-A68614A8E312}"
+	ProjectSection(SolutionItems) = preProject
+		lib\NFX.dll = lib\NFX.dll
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NFX.VisualStudio.vs2012", "NFX.VisualStudio\NFX.VisualStudio.vs2012.csproj", "{A4C81797-0CD8-4B7D-A672-D50C3D568B0F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D2FCCCDA-18A0-404A-8C58-8B16C968598A}"
+	ProjectSection(SolutionItems) = preProject
+		..\.editorconfig = ..\.editorconfig
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A4C81797-0CD8-4B7D-A672-D50C3D568B0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4C81797-0CD8-4B7D-A672-D50C3D568B0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4C81797-0CD8-4B7D-A672-D50C3D568B0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4C81797-0CD8-4B7D-A672-D50C3D568B0F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
