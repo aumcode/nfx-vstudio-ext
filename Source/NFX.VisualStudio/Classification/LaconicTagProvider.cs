@@ -111,15 +111,7 @@ namespace NFX.VisualStudio
 
       m_Snapshot = newSpanshot;
 
-      var sb = new StringBuilder();
-
-      //TODO Fix this bullshit
-      for (var i = 0; i < newSpanshot.Length; i++)
-      {
-        sb.Append(newSpanshot[i]);
-      }
-
-      var text = sb.ToString();
+      var text = new SnapshotSpan(m_Snapshot, new Span(0, m_Snapshot.Length)).GetText();
       var errorTags = GetLaconicTags(ref tags, text);
       lock (ts_LockObject)
       {

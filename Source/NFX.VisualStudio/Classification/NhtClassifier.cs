@@ -67,15 +67,8 @@ namespace NFX.VisualStudio
       if (m_Snapshot == newSpanshot)
         return m_Oldtags;
 
-      m_Snapshot = newSpanshot;
-
-      var sb = new StringBuilder();
-      for (var i = 0; i < m_Snapshot.Length; i++)
-      {
-        sb.Append(m_Snapshot[i]);
-      }
-
-      var text = sb.ToString();
+      m_Snapshot = newSpanshot;                                     
+      var text = new SnapshotSpan(m_Snapshot, new Span(0, m_Snapshot.Length)).GetText();
 
       var k = 0;
       while (k < text.Length)        //#[] - area
