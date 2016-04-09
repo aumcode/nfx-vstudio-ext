@@ -53,6 +53,34 @@ namespace NFX.VisualStudio
     [Export(typeof(ClassificationTypeDefinition))]
     [Name(Constants.EXPRESSION_AREA_TOKEN_NAME)]
     internal static ClassificationTypeDefinition ExpressionAreaToken { get; set; }
+
+    [Export(typeof(ClassificationTypeDefinition))]
+    [Name(Constants.GROUP_1_TOKEN_NAME)]
+    internal static ClassificationTypeDefinition Group1Token { get; set; }
+
+    [Export(typeof(ClassificationTypeDefinition))]
+    [Name(Constants.GROUP_2_TOKEN_NAME)]
+    internal static ClassificationTypeDefinition Group2Token { get; set; }
+
+    [Export(typeof(ClassificationTypeDefinition))]
+    [Name(Constants.GROUP_3_TOKEN_NAME)]
+    internal static ClassificationTypeDefinition Group3Token { get; set; }
+
+    [Export(typeof(ClassificationTypeDefinition))]
+    [Name(Constants.GROUP_4_TOKEN_NAME)]
+    internal static ClassificationTypeDefinition Group4Token { get; set; }
+
+    [Export(typeof(ClassificationTypeDefinition))]
+    [Name(Constants.GROUP_5_TOKEN_NAME)]
+    internal static ClassificationTypeDefinition Group5Token { get; set; }
+
+    [Export(typeof(ClassificationTypeDefinition))]
+    [Name(Constants.GROUP_6_TOKEN_NAME)]
+    internal static ClassificationTypeDefinition Group6Token { get; set; }
+
+    [Export(typeof(ClassificationTypeDefinition))]
+    [Name(Constants.GROUP_7_TOKEN_NAME)]
+    internal static ClassificationTypeDefinition Group7Token { get; set; }
   }
 }
 
@@ -72,4 +100,12 @@ internal static class Constants
   internal const string AREA_TOKEN_NAME = "AreaToken";
   internal const string STATEMENT_AREA_TOKEN_NAME = "StatementAreaToken";
   internal const string EXPRESSION_AREA_TOKEN_NAME = "ExpressionAreaToken";
+
+  internal const string GROUP_1_TOKEN_NAME = "Group1Token";
+  internal const string GROUP_2_TOKEN_NAME = "Group2Token";
+  internal const string GROUP_3_TOKEN_NAME = "Group3Token";
+  internal const string GROUP_4_TOKEN_NAME = "Group4Token";
+  internal const string GROUP_5_TOKEN_NAME = "Group5Token";
+  internal const string GROUP_6_TOKEN_NAME = "Group6Token";
+  internal const string GROUP_7_TOKEN_NAME = "Group7Token";
 }

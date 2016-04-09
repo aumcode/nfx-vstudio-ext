@@ -6,10 +6,10 @@ using Microsoft.VisualStudio.Utilities;
 namespace NFX.VisualStudio
 {
   [Export(typeof(EditorFormatDefinition))]
-  [ClassificationType(ClassificationTypeNames = Constants.NFX+ Constants.LACONF_TOKEN_NAME)]
+  [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.LACONF_TOKEN_NAME)]
   [Name(Constants.LACONF_TOKEN_NAME)]
   [UserVisible(true)]
-  [Order(Before = Priority.High)]
+  [Order(Before = Priority.High, After = Priority.High)]
   internal sealed class NfxLaconfToken : ClassificationFormatDefinition
   {
     public NfxLaconfToken()
@@ -24,7 +24,7 @@ namespace NFX.VisualStudio
   [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.EXPRESSION_TOKEN_NAME)]
   [Name(Constants.EXPRESSION_TOKEN_NAME)]
   [UserVisible(true)]
-  [Order(Before = Priority.High)]
+  [Order(Before = Priority.High, After = Priority.High)]
   internal sealed class ExpressionToken : ClassificationFormatDefinition
   {
     public ExpressionToken()
@@ -38,7 +38,7 @@ namespace NFX.VisualStudio
   [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.EXPRESSION_BRACE_TOKEN_NAME)]
   [Name(Constants.EXPRESSION_BRACE_TOKEN_NAME)]
   [UserVisible(true)]
-  [Order(Before = Priority.High)]
+  [Order(Before = Priority.High, After = Priority.High)]
   internal sealed class ExpressionBraceToken : ClassificationFormatDefinition
   {
     public ExpressionBraceToken()
@@ -68,7 +68,7 @@ namespace NFX.VisualStudio
   [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.ERROR_TOKEN_NAME)]
   [Name(Constants.ERROR_TOKEN_NAME)]
   [UserVisible(true)]
-  [Order(Before = Priority.High)]
+  [Order(Before = Priority.High, After = Priority.High)]
   internal sealed class ErrorToken : ClassificationFormatDefinition
   {
     public ErrorToken()
@@ -83,7 +83,7 @@ namespace NFX.VisualStudio
   [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.BRACE_TOKEN_NAME)]
   [Name(Constants.BRACE_TOKEN_NAME)]
   [UserVisible(true)]
-  [Order(Before = Priority.High)]
+  [Order(Before = Priority.High, After = Priority.High)]
   internal sealed class BraceToken : ClassificationFormatDefinition
   {
     public BraceToken()
@@ -97,7 +97,7 @@ namespace NFX.VisualStudio
   [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.LITERAL_TOKEN_NAME)]
   [Name(Constants.LITERAL_TOKEN_NAME)]
   [UserVisible(true)]
-  [Order(Before = Priority.High)]
+  [Order(Before = Priority.High, After = Priority.High)]
   internal sealed class LiteralToken : ClassificationFormatDefinition
   {
     public LiteralToken()
@@ -111,7 +111,7 @@ namespace NFX.VisualStudio
   [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.COMMENT_TOKEN_NAME)]
   [Name(Constants.COMMENT_TOKEN_NAME)]
   [UserVisible(true)]
-  [Order(Before = Priority.High)]
+  [Order(Before = Priority.High, After = Priority.High)]
   internal sealed class CommentToken : ClassificationFormatDefinition
   {
     public CommentToken()
@@ -125,7 +125,7 @@ namespace NFX.VisualStudio
   [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.SPECIAL_TOKEN_NAME)]
   [Name(Constants.SPECIAL_TOKEN_NAME)]
   [UserVisible(true)]
-  [Order(Before = Priority.High)]
+  [Order(Before = Priority.High, After = Priority.High)]
   internal sealed class SpecialToken : ClassificationFormatDefinition
   {
     public SpecialToken()
@@ -140,7 +140,7 @@ namespace NFX.VisualStudio
   [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.AREA_TOKEN_NAME)]
   [Name(Constants.AREA_TOKEN_NAME)]
   [UserVisible(true)]
-  [Order(Before = Priority.High)]
+  [Order(Before = Priority.High, After = Priority.High)]
   internal sealed class AreaToken : ClassificationFormatDefinition
   {
     public AreaToken()
@@ -155,7 +155,7 @@ namespace NFX.VisualStudio
   [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.STATEMENT_AREA_TOKEN_NAME)]
   [Name(Constants.STATEMENT_AREA_TOKEN_NAME)]
   [UserVisible(true)]
-  [Order(Before = Priority.High)]
+  [Order(Before = Priority.High, After = Priority.High)]
   internal sealed class StatementAreaToken : ClassificationFormatDefinition
   {
     public StatementAreaToken()
@@ -166,13 +166,11 @@ namespace NFX.VisualStudio
     }
   }
 
-
-
   [Export(typeof(EditorFormatDefinition))]
   [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.EXPRESSION_AREA_TOKEN_NAME)]
   [Name(Constants.EXPRESSION_AREA_TOKEN_NAME)]
   [UserVisible(true)]
-  [Order(Before = Priority.High)]
+  [Order(Before = Priority.High, After = Priority.High)]
   internal sealed class ExpressionAreaToken : ClassificationFormatDefinition
   {
     public ExpressionAreaToken()
@@ -180,6 +178,97 @@ namespace NFX.VisualStudio
       DisplayName = "Expression area";
       BackgroundColor = Colors.Green;
       BackgroundOpacity = 0.2D;
+    }
+  }
+
+  [Export(typeof(EditorFormatDefinition))]
+  [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.GROUP_1_TOKEN_NAME)]
+  [Name(Constants.GROUP_1_TOKEN_NAME)]
+  [UserVisible(true)]
+  [Order(Before = Priority.High, After = Priority.High)]
+  internal sealed class Group1Token : ClassificationFormatDefinition
+  {
+    public Group1Token()
+    {
+      ForegroundColor = Color.FromRgb(0, 0, 0xff);
+    }
+  }
+
+  [Export(typeof(EditorFormatDefinition))]
+  [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.GROUP_2_TOKEN_NAME)]
+  [Name(Constants.GROUP_2_TOKEN_NAME)]
+  [UserVisible(true)]
+  [Order(Before = Priority.High, After = Priority.High)]
+  internal sealed class Group2Token : ClassificationFormatDefinition
+  {
+    public Group2Token()
+    {
+      ForegroundColor = Color.FromRgb(0, 0x80, 0xc0);//0080C0
+    }
+  }
+
+  [Export(typeof(EditorFormatDefinition))]
+  [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.GROUP_3_TOKEN_NAME)]
+  [Name(Constants.GROUP_3_TOKEN_NAME)]
+  [UserVisible(true)]
+  [Order(Before = Priority.High, After = Priority.High)]
+  internal sealed class Group3Token : ClassificationFormatDefinition
+  {
+    public Group3Token()
+    {
+      ForegroundColor = Color.FromRgb(0, 0x80, 0xc0);//0080C0
+    }
+  }
+
+  [Export(typeof(EditorFormatDefinition))]
+  [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.GROUP_4_TOKEN_NAME)]
+  [Name(Constants.GROUP_4_TOKEN_NAME)]
+  [UserVisible(true)]
+  [Order(Before = Priority.High, After = Priority.High)]
+  internal sealed class Group4Token : ClassificationFormatDefinition
+  {
+    public Group4Token()
+    {
+      ForegroundColor = Color.FromRgb(0xbf, 0x00, 0x00);//BF0000
+    }
+  }
+
+  [Export(typeof(EditorFormatDefinition))]
+  [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.GROUP_5_TOKEN_NAME)]
+  [Name(Constants.GROUP_5_TOKEN_NAME)]
+  [UserVisible(true)]
+  [Order(Before = Priority.High, After = Priority.High)]
+  internal sealed class Group5Token : ClassificationFormatDefinition
+  {
+    public Group5Token()
+    {
+      ForegroundColor = Color.FromRgb(0xd5, 0x6a, 0x00);//D56A00
+    }
+  }
+
+  [Export(typeof(EditorFormatDefinition))]
+  [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.GROUP_6_TOKEN_NAME)]
+  [Name(Constants.GROUP_6_TOKEN_NAME)]
+  [UserVisible(true)]
+  [Order(Before = Priority.High, After = Priority.High)]
+  internal sealed class Group6Token : ClassificationFormatDefinition
+  {
+    public Group6Token()
+    {
+      ForegroundColor = Color.FromRgb(0x44, 0x88, 0x00);//448800
+    }
+  }
+
+  [Export(typeof(EditorFormatDefinition))]
+  [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.GROUP_7_TOKEN_NAME)]
+  [Name(Constants.GROUP_7_TOKEN_NAME)]
+  [UserVisible(true)]
+  [Order(Before = Priority.High, After = Priority.High)]
+  internal sealed class Group7Token : ClassificationFormatDefinition
+  {
+    public Group7Token()
+    {
+      ForegroundColor = Color.FromRgb(0xac, 0x33, 0x69);//AC3369
     }
   }
 }

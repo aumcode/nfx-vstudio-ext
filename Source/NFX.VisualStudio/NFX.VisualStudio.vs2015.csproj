@@ -50,7 +50,7 @@
   <ItemGroup>
     <Compile Include="Classification\ClassificationFormat.cs" />
     <Compile Include="Classification\Classifier.cs" />
-    <Compile Include="Classification\NhtTaggerProvider.vs2015.cs" />
+    <Compile Include="vs2015\NhtTaggerProvider.cs" />
     <Compile Include="Classification\NhtClassifier.cs" />
     <Compile Include="Classification\ClassificationDefinition.cs" />
     <Compile Include="Classification\Helper.cs" />

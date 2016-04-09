@@ -16,7 +16,6 @@ namespace NFX.VisualStudio
 {
   internal abstract class Classifier
   {
-
     protected Classifier(
       IClassificationTypeRegistryService typeService,
       ITextBufferFactoryService bufferFactoryService,
@@ -42,6 +41,13 @@ namespace NFX.VisualStudio
       m_NfxTypes.Add(NfxTokenTypes.Area, typeService.GetClassificationType(Constants.AREA_TOKEN_NAME));
       m_NfxTypes.Add(NfxTokenTypes.ExpressionArea, typeService.GetClassificationType(Constants.EXPRESSION_AREA_TOKEN_NAME));
       m_NfxTypes.Add(NfxTokenTypes.StatementArea, typeService.GetClassificationType(Constants.STATEMENT_AREA_TOKEN_NAME));
+      m_NfxTypes.Add(NfxTokenTypes.Group1, typeService.GetClassificationType(Constants.GROUP_1_TOKEN_NAME));
+      m_NfxTypes.Add(NfxTokenTypes.Group2, typeService.GetClassificationType(Constants.GROUP_2_TOKEN_NAME));
+      m_NfxTypes.Add(NfxTokenTypes.Group3, typeService.GetClassificationType(Constants.GROUP_3_TOKEN_NAME));
+      m_NfxTypes.Add(NfxTokenTypes.Group4, typeService.GetClassificationType(Constants.GROUP_4_TOKEN_NAME));
+      m_NfxTypes.Add(NfxTokenTypes.Group5, typeService.GetClassificationType(Constants.GROUP_5_TOKEN_NAME));
+      m_NfxTypes.Add(NfxTokenTypes.Group6, typeService.GetClassificationType(Constants.GROUP_6_TOKEN_NAME));
+      m_NfxTypes.Add(NfxTokenTypes.Group7, typeService.GetClassificationType(Constants.GROUP_7_TOKEN_NAME));
     }
 
     protected readonly IDictionary<NfxTokenTypes, IClassificationType> m_NfxTypes;
@@ -57,21 +63,44 @@ namespace NFX.VisualStudio
       "set",
     };
 
+    private static HashSet<string> m_Keywords1 = new HashSet<string>{
+    "behaviors","log","data-store","object-store","instrumentation","glue","security","messaging","web-settings","system","localization","starters","gv"
+    };
+
+    private static HashSet<string> m_Keywords2 = new HashSet<string>{
+    "providers","bindings","client-inspectors","server-inspectors","servers","users","mailer","social","starter"
+    };
+
+    private static HashSet<string> m_Keywords3 = new HashSet<string>{
+    "binding","destination","server","provider","client-transport","server-transport","inspector","user","rights","gate","rule","incoming","outgoing","filter","handler","portal","theme","dispatcher"
+    };
+
+    private static HashSet<string> m_Keywords4 = new HashSet<string>{
+    "name","type","order","description","enabled","_override"
+    };
+
+    private static HashSet<string> m_Keywords5 = new HashSet<string>{
+    "area","partition","shard","match","var","log-level","schema-name","bank-name","paths","types","services"
+    };
+
+    private static HashSet<string> m_Keywords6 = new HashSet<string>{
+    "start-gdid","primary-cs","secondary-cs","application-name"
+    };
+
+    private static HashSet<string> m_Keywords7 = new HashSet<string>{
+    "target-name","script-assembly","handler-location","type-location","assembly","ns","type-ns-prefix"
+    };
+
     protected void FindPropTags(List<ITagSpan<IClassificationTag>> tags, IContentType contetType, string textSpan, int bufferStartPosition)
     {
       var buffer = m_BufferFactoryService.CreateTextBuffer(textSpan,
                   contetType);
       var snapshotSpan = new SnapshotSpan(buffer.CurrentSnapshot, new Span(0, textSpan.Length));
-      var ns =
-        new NormalizedSnapshotSpanCollection(new List<SnapshotSpan>
-        {
-                    snapshotSpan
-        });
 
       var ta = m_TagAggregatorFactoryService.CreateTagAggregator<IClassificationTag>(buffer);
       if (ta != null)
       {
-        var ts = ta.GetTags(ns);
+        var ts = ta.GetTags(snapshotSpan);
         foreach (var mappingTagSpan in ts)
         {
           var anchor =
@@ -158,6 +187,28 @@ namespace NFX.VisualStudio
           curType = NfxTokenTypes.Brace;
         else if (token.IsLiteral)
           curType = NfxTokenTypes.Literal;
+
+        if (m_Keywords1.Contains(token.Text))
+          curType = NfxTokenTypes.Group1;
+          
+        if (m_Keywords2.Contains(token.Text))
+          curType = NfxTokenTypes.Group2;
+          
+        if (m_Keywords3.Contains(token.Text))
+          curType = NfxTokenTypes.Group3;
+          
+        if (m_Keywords4.Contains(token.Text))
+          curType = NfxTokenTypes.Group4;
+          
+        if (m_Keywords5.Contains(token.Text))
+          curType = NfxTokenTypes.Group5;
+          
+        if (m_Keywords6.Contains(token.Text))
+          curType = NfxTokenTypes.Group6;
+          
+        if (m_Keywords7.Contains(token.Text))
+          curType = NfxTokenTypes.Group7;
+
 
         if (curType.HasValue)
           classifierTags.Add(CreateTagSpan(startPosition + token.StartPosition.CharNumber - 1, token.Text.Length, curType.Value));

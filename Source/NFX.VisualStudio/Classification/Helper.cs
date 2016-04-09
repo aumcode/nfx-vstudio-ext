@@ -50,11 +50,14 @@ namespace NFX.VisualStudio
 
     public void Refresh()
     {
+      if(m_ErrorListProvider != null)
       m_ErrorListProvider.Tasks.Clear();
     }
 
     private void AddTask(Message message, TaskErrorCategory category)
     {
+      if(m_ErrorListProvider == null)
+      return;
       var error = new ErrorTask
       {
         Category = TaskCategory.User,
