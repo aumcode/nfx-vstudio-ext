@@ -24,7 +24,32 @@ namespace NFX.VisualStudio
     [Export]
     [FileExtension(".laconf")]
     [ContentType("Laconic")]
-    internal static FileExtensionToContentTypeDefinition NfxFileType { get; set; }
+    internal static FileExtensionToContentTypeDefinition LaconfFileType { get; set; }
+
+    [Export]
+    [FileExtension(".lac")]
+    [ContentType("Laconic")]
+    internal static FileExtensionToContentTypeDefinition LacFileType { get; set; }
+                                                                                  
+    [Export]
+    [FileExtension(".lacon")]
+    [ContentType("Laconic")]
+    internal static FileExtensionToContentTypeDefinition LaconFileType { get; set; }
+
+    [Export]
+    [FileExtension(".laconfig")]
+    [ContentType("Laconic")]
+    internal static FileExtensionToContentTypeDefinition LaconfigFileType { get; set; }
+
+    [Export]
+    [FileExtension(".rschema")]
+    [ContentType("Laconic")]
+    internal static FileExtensionToContentTypeDefinition RschemaFileType { get; set; }
+
+    [Export]
+    [FileExtension(".acmb")]
+    [ContentType("Laconic")]
+    internal static FileExtensionToContentTypeDefinition AcmbFileType { get; set; }
 
     [Import]
     internal SVsServiceProvider ServiceProvider { get; set; }
