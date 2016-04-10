@@ -223,13 +223,11 @@ namespace NFX.VisualStudio
       IBufferTagAggregatorFactoryService tagAggregatorFactoryService,
       IContentTypeRegistryService contentTypeRegistryService,
       TaskManager taskManager)
-      : base(typeService, bufferFactory, tagAggregatorFactoryService, taskManager)
-    {
-    }
-
+      : base(typeService, bufferFactory, tagAggregatorFactoryService, taskManager) {  }
+                                       
     public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 
-    private List<ITagSpan<IErrorTag>> m_ErrorTags;
+    private List<ITagSpan<IErrorTag>> m_ErrorTags; 
 
     public IEnumerable<ITagSpan<IErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans)
     {

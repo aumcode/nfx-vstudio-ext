@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="Classification\ClassificationFormat.cs" />
     <Compile Include="Classification\Classifier.cs" />
+    <Compile Include="Classification\LaconicClassifier.cs" />
     <Compile Include="Configurator.cs" />
     <Compile Include="TokenTypes.cs" />
     <Compile Include="vs2015\NhtTaggerProvider.cs" />
@@ -169,7 +170,16 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="aum.red.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="license.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

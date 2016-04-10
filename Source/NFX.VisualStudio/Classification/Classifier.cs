@@ -11,7 +11,8 @@ using System.Text;
 using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.Utilities;
-using System;
+using EnvDTE;
+using Microsoft.VisualStudio.Shell;
 
 namespace NFX.VisualStudio
 {
@@ -58,15 +59,31 @@ namespace NFX.VisualStudio
       m_NfxTypes.Add(NfxTokenTypes.Group5, typeService.GetClassificationType(Constants.GROUP_5_TOKEN_NAME));
       m_NfxTypes.Add(NfxTokenTypes.Group6, typeService.GetClassificationType(Constants.GROUP_6_TOKEN_NAME));
       m_NfxTypes.Add(NfxTokenTypes.Group7, typeService.GetClassificationType(Constants.GROUP_7_TOKEN_NAME));
+
+
+      var _vsObject = (DTE)Package.GetGlobalService(typeof(DTE));
+      Window _editorWindow = null;
+      m_DocName = _vsObject.ActiveWindow.Caption;
+
+      m_windowEvents = _vsObject.Events.get_WindowEvents(_editorWindow);
+      m_windowEvents.WindowClosing += OnWindowClosing;
     }
 
     protected readonly IDictionary<NfxTokenTypes, IClassificationType> m_NfxTypes;
     protected readonly ITextBufferFactoryService m_BufferFactoryService;
     protected readonly IBufferTagAggregatorFactoryService m_TagAggregatorFactoryService;
     protected ITextSnapshot m_Snapshot;
-    private readonly TaskManager m_TaskManger;
+    protected readonly TaskManager m_TaskManger;
     protected object ts_LockObject = new object();
 
+    private WindowEvents m_windowEvents;
+    private readonly string m_DocName;
+                          
+    void OnWindowClosing(Window Window)
+    {
+      if (Window.Caption.Equals(m_DocName))
+        m_TaskManger.Refresh();
+    }
 
     protected void FindPropTags(List<ITagSpan<IClassificationTag>> tags, IContentType contetType, string textSpan, int bufferStartPosition)
     {
@@ -188,7 +205,6 @@ namespace NFX.VisualStudio
       var ctx = new LaconfigData(cfg);
       var p = new LaconfigParser(ctx, lxr, ml);
       p.Parse();
-      var errorTags = new List<ITagSpan<IErrorTag>>();
       m_TaskManger.Refresh();
       foreach (var message in ml)
       {
@@ -199,7 +215,7 @@ namespace NFX.VisualStudio
 
         var length = message.Token == null ? src.Length - 1 :
           src.Length - start > 10 ? 10 : src.Length - start;
-        errorTags.Add(CreateTagSpan(start, length));
+        tags.Add(CreateTagSpan(start, length));
       }
     }
 

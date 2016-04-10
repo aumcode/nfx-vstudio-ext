@@ -49,12 +49,7 @@ namespace NFX.VisualStudio
   [TagType(typeof(IErrorTag))]
   [Export(typeof(ITaggerProvider))]
   internal sealed class NhtErrorTaggerProvider : ITaggerProvider
-  {
-    [Export]
-    [BaseDefinition("text")]
-    [Name(Constants.NFX)]
-    internal static ContentTypeDefinition NfxContentType { get; set; }
-
+  {                                                                      
     [Export]
     [FileExtension(".nht")]
     [ContentType(Constants.NFX)]
