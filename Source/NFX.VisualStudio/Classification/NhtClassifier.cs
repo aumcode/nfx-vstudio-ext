@@ -4,11 +4,10 @@ using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Utilities;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace NFX.VisualStudio
 {
-  internal sealed class NhtTagger : Classifier, ITagger<IClassificationTag>, ITagger<IErrorTag>
+  internal sealed class NhtTagger : Classifier, ITagger<IClassificationTag>
   {
     internal NhtTagger(
       IClassificationTypeRegistryService typeService,
@@ -25,41 +24,12 @@ namespace NFX.VisualStudio
     public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 
     private List<ITagSpan<IClassificationTag>> m_Oldtags;
-    private static List<ITagSpan<IErrorTag>> m_ErrorTags;
     readonly IContentType m_CssContentType;
     readonly IContentType m_JavaScripContentType;
 
-    object ts_LockObject = new object();
-
-    IEnumerable<ITagSpan<IErrorTag>> ITagger<IErrorTag>.GetTags(NormalizedSnapshotSpanCollection spans)
-    {
-
-      if (spans.Count > 0)
-      {
-        var newSpanshot = spans[0].Snapshot;
-        if (m_Snapshot != newSpanshot)
-        {
-          m_Snapshot = newSpanshot;
-
-          lock (ts_LockObject)
-          {
-            var t = TagsChanged;
-            if (t != null)
-              TagsChanged.Invoke(this,
-                new SnapshotSpanEventArgs(new SnapshotSpan(m_Snapshot, 0, m_Snapshot.Length)));
-          }
-        }
-      }
-      return m_ErrorTags ?? new List<ITagSpan<IErrorTag>>();
-
-    }
-    /// <summary>
-    /// Search the given span for any instances of classified tags
-    /// </summary>
     public IEnumerable<ITagSpan<IClassificationTag>> GetTags(NormalizedSnapshotSpanCollection spans)
     {
       var tags = new List<ITagSpan<IClassificationTag>>();
-      var errorTags = new List<ITagSpan<IErrorTag>>();
 
       if (spans.Count < 1)
         return tags;
@@ -89,7 +59,7 @@ namespace NFX.VisualStudio
                 tags.Add(CreateTagSpan(o, 1, NfxTokenTypes.ExpressionBrace)); //]
 
                 var j = k + 2;
-                FindAdditionalsTokens(tags, NfxTokenTypes.KeyWord, text, j, o - j, "render", "class");
+                FindAdditionalsTokens(tags, NfxTokenTypes.KeyWord, text, j, o - j + 1);
                 tags.Add(CreateTagSpan(j, o - j, NfxTokenTypes.Area));
                 break;
               }
@@ -115,7 +85,7 @@ namespace NFX.VisualStudio
 
                 var j = k + 2;
                 FindCSharpTokens(tags, text, j, o - j);
-                FindAdditionalsTokens(tags, NfxTokenTypes.KeyWord, text, j, o - j);
+                FindAdditionalsTokens(tags, NfxTokenTypes.KeyWord, text, j, o - j + 1);
                 tags.Add(CreateTagSpan(j, o - j, NfxTokenTypes.StatementArea));
                 break;
               }
@@ -142,7 +112,7 @@ namespace NFX.VisualStudio
                 var j = k + 2;
 
                 FindCSharpTokens(tags, text, j, o - j);
-                FindAdditionalsTokens(tags, NfxTokenTypes.KeyWord, text, j, o - j);
+                FindAdditionalsTokens(tags, NfxTokenTypes.KeyWord, text, j, o - j + 1);
                 tags.Add(CreateTagSpan(j, o - j, NfxTokenTypes.ExpressionArea));
                 break;
               }
@@ -178,7 +148,7 @@ namespace NFX.VisualStudio
                 tags.Add(CreateTagSpan(o, LACONFIG_END.Length, NfxTokenTypes.Laconf)); //#<laconf>
 
                 var j = k + LACONFIG_START.Length;
-                errorTags = GetLaconicTags(ref tags, text.Substring(j, o - j), j);
+                GetLaconicTags(ref tags, text.Substring(j, o - j), j);
                 break;
               }
               o++;
@@ -229,33 +199,91 @@ namespace NFX.VisualStudio
 
         k++;
       }
-      SynchronousUpdate(m_Snapshot, m_Oldtags, tags);
-      lock (ts_LockObject)
-      {
-        m_ErrorTags = errorTags;
-      }
+      SynchronousUpdate();
       m_Oldtags = tags;
       return tags;
     }
 
-    void SynchronousUpdate(ITextSnapshot snapshotSpan, List<ITagSpan<IClassificationTag>> oldTags, List<ITagSpan<IClassificationTag>> newTags)
+    void SynchronousUpdate()
     {
       lock (ts_LockObject)
       {
         var t = TagsChanged;
         if (t != null)
-          TagsChanged.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(snapshotSpan, 0, snapshotSpan.Length)));
+          TagsChanged.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(m_Snapshot, 0, m_Snapshot.Length)));
       }
     }
+  }
 
-    public const string CONFIG_START = "#<conf>";
-    public const string CONFIG_END = "#</conf>";
-    public const string LACONFIG_START = "#<laconf>";
-    public const string LACONFIG_END = "#</laconf>";
-    public const string CLASS_AREA_FULL = "#[class]";
-    public const string STYLE_START = "<style>";
-    public const string STYLE_END = "</style>";
-    public const string SCRIPT_START = "<script>";
-    public const string SCRIP_END = "</script>";
+  internal sealed class NhtErrorTagger : Classifier,  ITagger<IErrorTag>
+  {
+    internal NhtErrorTagger(
+      IClassificationTypeRegistryService typeService,
+      ITextBufferFactoryService bufferFactory,
+      IBufferTagAggregatorFactoryService tagAggregatorFactoryService,
+      IContentTypeRegistryService contentTypeRegistryService,
+      TaskManager taskManager)
+      : base(typeService, bufferFactory, tagAggregatorFactoryService, taskManager)
+    {
+    }
+
+    public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
+
+    private List<ITagSpan<IErrorTag>> m_ErrorTags;
+
+    public IEnumerable<ITagSpan<IErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans)
+    {
+      var errorTags = new List<ITagSpan<IErrorTag>>();
+
+      if (spans.Count < 1)
+        return errorTags;
+      var newSpanshot = spans[0].Snapshot;
+      if (m_Snapshot == newSpanshot)
+        return m_ErrorTags;
+
+      m_Snapshot = newSpanshot;
+      var text = new SnapshotSpan(m_Snapshot, new Span(0, m_Snapshot.Length)).GetText();
+
+      var k = 0;
+      while (k < text.Length)        //#[] - area
+      {       
+
+        if (text[k] == '#' && text[k] == '#' && (k == 0 || text[k - 1] != '#'))       //laconic config
+        {
+          if (text.Length - k >= LACONFIG_START.Length &&
+              text.Substring(k, LACONFIG_START.Length) == LACONFIG_START) //#<laconf>
+          {
+            var o = k + 1;
+            while (o < text.Length)
+            {
+              if (text.Length - o >= LACONFIG_END.Length && text[o] == '#' &&
+                  text.Substring(o, LACONFIG_END.Length) == LACONFIG_END) //#<laconf>
+              {                                                                                       
+                var j = k + LACONFIG_START.Length;
+                GetErrorLaconicTags(ref errorTags, text.Substring(j, o - j), j);
+                break;
+              }
+              o++;
+            }
+          }
+        }       
+
+        k++;
+      }
+      SynchronousUpdate();
+      m_ErrorTags =  errorTags;
+      return m_ErrorTags;
+    }
+
+    void SynchronousUpdate()
+    {
+      lock (ts_LockObject)
+      {
+        var t = TagsChanged;
+        if (t != null)
+          TagsChanged.Invoke(this,
+            new SnapshotSpanEventArgs(new SnapshotSpan(m_Snapshot, 0, m_Snapshot.Length)));
+      }
+    }
   }
 }

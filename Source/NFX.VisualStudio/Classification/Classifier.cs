@@ -11,11 +11,22 @@ using System.Text;
 using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.Utilities;
+using System;
 
 namespace NFX.VisualStudio
 {
   internal abstract class Classifier
   {
+    public const string CONFIG_START = "#<conf>";
+    public const string CONFIG_END = "#</conf>";
+    public const string LACONFIG_START = "#<laconf>";
+    public const string LACONFIG_END = "#</laconf>";
+    public const string CLASS_AREA_FULL = "#[class]";
+    public const string STYLE_START = "<style>";
+    public const string STYLE_END = "</style>";
+    public const string SCRIPT_START = "<script>";
+    public const string SCRIP_END = "</script>";
+
     protected Classifier(
       IClassificationTypeRegistryService typeService,
       ITextBufferFactoryService bufferFactoryService,
@@ -33,7 +44,6 @@ namespace NFX.VisualStudio
       m_NfxTypes.Add(NfxTokenTypes.Statement, typeService.GetClassificationType(Constants.EXPRESSION_TOKEN_NAME));
       m_NfxTypes.Add(NfxTokenTypes.ExpressionBrace, typeService.GetClassificationType(Constants.EXPRESSION_BRACE_TOKEN_NAME));
       m_NfxTypes.Add(NfxTokenTypes.KeyWord, typeService.GetClassificationType(Constants.KEYWORD_TOKEN_NAME));
-      m_NfxTypes.Add(NfxTokenTypes.Error, typeService.GetClassificationType(Constants.ERROR_TOKEN_NAME));
       m_NfxTypes.Add(NfxTokenTypes.Brace, typeService.GetClassificationType(Constants.BRACE_TOKEN_NAME));
       m_NfxTypes.Add(NfxTokenTypes.Literal, typeService.GetClassificationType(Constants.LITERAL_TOKEN_NAME));
       m_NfxTypes.Add(NfxTokenTypes.Comment, typeService.GetClassificationType(Constants.COMMENT_TOKEN_NAME));
@@ -55,41 +65,8 @@ namespace NFX.VisualStudio
     protected readonly IBufferTagAggregatorFactoryService m_TagAggregatorFactoryService;
     protected ITextSnapshot m_Snapshot;
     private readonly TaskManager m_TaskManger;
+    protected object ts_LockObject = new object();
 
-    private static List<string> m_ContextCSharpTokens = new List<string>
-    {
-      "string",
-      "get",
-      "set",
-    };
-
-    private static HashSet<string> m_Keywords1 = new HashSet<string>{
-    "behaviors","log","data-store","object-store","instrumentation","glue","security","messaging","web-settings","system","localization","starters","gv"
-    };
-
-    private static HashSet<string> m_Keywords2 = new HashSet<string>{
-    "providers","bindings","client-inspectors","server-inspectors","servers","users","mailer","social","starter"
-    };
-
-    private static HashSet<string> m_Keywords3 = new HashSet<string>{
-    "binding","destination","server","provider","client-transport","server-transport","inspector","user","rights","gate","rule","incoming","outgoing","filter","handler","portal","theme","dispatcher"
-    };
-
-    private static HashSet<string> m_Keywords4 = new HashSet<string>{
-    "name","type","order","description","enabled","_override"
-    };
-
-    private static HashSet<string> m_Keywords5 = new HashSet<string>{
-    "area","partition","shard","match","var","log-level","schema-name","bank-name","paths","types","services"
-    };
-
-    private static HashSet<string> m_Keywords6 = new HashSet<string>{
-    "start-gdid","primary-cs","secondary-cs","application-name"
-    };
-
-    private static HashSet<string> m_Keywords7 = new HashSet<string>{
-    "target-name","script-assembly","handler-location","type-location","assembly","ns","type-ns-prefix"
-    };
 
     protected void FindPropTags(List<ITagSpan<IClassificationTag>> tags, IContentType contetType, string textSpan, int bufferStartPosition)
     {
@@ -116,8 +93,7 @@ namespace NFX.VisualStudio
       }
     }
 
-    protected void FindAdditionalsTokens(List<ITagSpan<IClassificationTag>> tags, NfxTokenTypes type, string text, int start, int length,
-      params string[] additionalTokens)
+    protected void FindAdditionalsTokens(List<ITagSpan<IClassificationTag>> tags, NfxTokenTypes type, string text, int start, int length)
     {
       var j = start;
       var word = new StringBuilder();
@@ -131,11 +107,11 @@ namespace NFX.VisualStudio
         }
         else if (word.Length > 0)
         {
-          Find(word, tags, type, j, additionalTokens);
+          Find(word, tags, type, j);
           word = new StringBuilder();
         }
         if (word.Length > 0 && j + 1 == o)
-          Find(word, tags, type, j, additionalTokens);
+          Find(word, tags, type, j);
         j++;
       }
     }
@@ -143,16 +119,66 @@ namespace NFX.VisualStudio
     private void Find(StringBuilder word, List<ITagSpan<IClassificationTag>> tags, NfxTokenTypes type,
      int currenPosition, params string[] additionalTokens)
     {
-      if (m_ContextCSharpTokens.Any(word.Compare) ||
-        (additionalTokens != null && additionalTokens.Any(word.Compare)))
+      if (Configurator.GetGroupKeywords(type.ToString()).Any(word.Compare))
       {
         var w = word.ToString();
-        tags.Add(CreateTagSpan(currenPosition - w.Length, w.Length, type));
+        tags.Add(CreateTagSpan(currenPosition - w.Length , w.Length, type));
       }
     }
 
-    protected List<ITagSpan<IErrorTag>> GetLaconicTags(
+    protected void GetLaconicTags(
       ref List<ITagSpan<IClassificationTag>> classifierTags,
+      string src,
+      int startPosition = 0)
+    {
+      var ml = new MessageList();
+      var lxr = new LaconfigLexer(new StringSource(src), ml);
+      var cfg = new LaconicConfiguration();
+      var ctx = new LaconfigData(cfg);
+      var p = new LaconfigParser(ctx, lxr, ml);
+      p.Parse();
+      for (var i = 0; i < lxr.Tokens.Count; i++)
+      {
+        NfxTokenTypes? curType = null;
+        var token = lxr.Tokens[i];
+        if (token.IsComment)
+          curType = NfxTokenTypes.Comment;
+        else if (token.IsIdentifier)
+          curType = NfxTokenTypes.KeyWord;
+        else if (token.IsSymbol || token.IsOperator)
+          curType = NfxTokenTypes.Brace;
+        else if (token.IsLiteral)
+          curType = NfxTokenTypes.Literal;
+
+        if (Configurator.GetGroupKeywords(NfxTokenTypes.Group1.ToString()).Contains(token.Text))
+          curType = NfxTokenTypes.Group1;
+
+        if (Configurator.GetGroupKeywords(NfxTokenTypes.Group2.ToString()).Contains(token.Text))
+          curType = NfxTokenTypes.Group2;
+
+        if (Configurator.GetGroupKeywords(NfxTokenTypes.Group3.ToString()).Contains(token.Text))
+          curType = NfxTokenTypes.Group3;
+
+        if (Configurator.GetGroupKeywords(NfxTokenTypes.Group4.ToString()).Contains(token.Text))
+          curType = NfxTokenTypes.Group4;
+
+        if (Configurator.GetGroupKeywords(NfxTokenTypes.Group5.ToString()).Contains(token.Text))
+          curType = NfxTokenTypes.Group5;
+
+        if (Configurator.GetGroupKeywords(NfxTokenTypes.Group6.ToString()).Contains(token.Text))
+          curType = NfxTokenTypes.Group6;
+
+        if (Configurator.GetGroupKeywords(NfxTokenTypes.Group7.ToString()).Contains(token.Text))
+          curType = NfxTokenTypes.Group7;
+
+
+        if (curType.HasValue)
+          classifierTags.Add(CreateTagSpan(startPosition + token.StartPosition.CharNumber - 1, token.Text.Length, curType.Value));
+      }
+    }
+
+    protected void GetErrorLaconicTags(
+      ref List<ITagSpan<IErrorTag>> tags,
       string src,
       int startPosition = 0)
     {
@@ -175,45 +201,6 @@ namespace NFX.VisualStudio
           src.Length - start > 10 ? 10 : src.Length - start;
         errorTags.Add(CreateTagSpan(start, length));
       }
-      for (var i = 0; i < lxr.Tokens.Count; i++)
-      {
-        NfxTokenTypes? curType = null;
-        var token = lxr.Tokens[i];
-        if (token.IsComment)
-          curType = NfxTokenTypes.Comment;
-        else if (token.IsIdentifier)
-          curType = NfxTokenTypes.KeyWord;
-        else if (token.IsSymbol || token.IsOperator)
-          curType = NfxTokenTypes.Brace;
-        else if (token.IsLiteral)
-          curType = NfxTokenTypes.Literal;
-
-        if (m_Keywords1.Contains(token.Text))
-          curType = NfxTokenTypes.Group1;
-          
-        if (m_Keywords2.Contains(token.Text))
-          curType = NfxTokenTypes.Group2;
-          
-        if (m_Keywords3.Contains(token.Text))
-          curType = NfxTokenTypes.Group3;
-          
-        if (m_Keywords4.Contains(token.Text))
-          curType = NfxTokenTypes.Group4;
-          
-        if (m_Keywords5.Contains(token.Text))
-          curType = NfxTokenTypes.Group5;
-          
-        if (m_Keywords6.Contains(token.Text))
-          curType = NfxTokenTypes.Group6;
-          
-        if (m_Keywords7.Contains(token.Text))
-          curType = NfxTokenTypes.Group7;
-
-
-        if (curType.HasValue)
-          classifierTags.Add(CreateTagSpan(startPosition + token.StartPosition.CharNumber - 1, token.Text.Length, curType.Value));
-      }
-      return errorTags;
     }
 
     protected void FindCSharpTokens(List<ITagSpan<IClassificationTag>> tags, string text, int sourceStart, int length)

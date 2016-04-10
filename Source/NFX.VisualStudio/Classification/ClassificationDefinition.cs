@@ -23,10 +23,6 @@ namespace NFX.VisualStudio
     internal static ClassificationTypeDefinition KeywordToken { get; set; }
 
     [Export(typeof(ClassificationTypeDefinition))]
-    [Name(Constants.ERROR_TOKEN_NAME)]
-    internal static ClassificationTypeDefinition ErrorToken { get; set; }
-
-    [Export(typeof(ClassificationTypeDefinition))]
     [Name(Constants.BRACE_TOKEN_NAME)]
     internal static ClassificationTypeDefinition BraceToken { get; set; }
 
@@ -92,7 +88,6 @@ internal static class Constants
   internal const string EXPRESSION_TOKEN_NAME = "ExpressionToken";
   internal const string EXPRESSION_BRACE_TOKEN_NAME = "ExpressionBraceTokenName";
   internal const string KEYWORD_TOKEN_NAME = "KeywordTokenName";
-  internal const string ERROR_TOKEN_NAME = "ErrorTokenName";
   internal const string BRACE_TOKEN_NAME = "BraceTokenName";
   internal const string LITERAL_TOKEN_NAME = "LiteralTokenName";
   internal const string COMMENT_TOKEN_NAME = "CommentTokenName";

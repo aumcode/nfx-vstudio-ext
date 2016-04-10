@@ -50,16 +50,18 @@
   <ItemGroup>
     <Compile Include="Classification\ClassificationFormat.cs" />
     <Compile Include="Classification\Classifier.cs" />
+    <Compile Include="Configurator.cs" />
+    <Compile Include="TokenTypes.cs" />
     <Compile Include="vs2015\NhtTaggerProvider.cs" />
     <Compile Include="Classification\NhtClassifier.cs" />
     <Compile Include="Classification\ClassificationDefinition.cs" />
     <Compile Include="Classification\Helper.cs" />
     <Compile Include="Classification\LaconicTagProvider.cs" />
-    <Compile Include="Classification\TokenTypes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <EmbeddedResource Include="config.laconf" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

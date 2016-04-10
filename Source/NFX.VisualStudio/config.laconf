@@ -1,0 +1,39 @@
+﻿ extension-config
+ {
+  formats
+  {
+    fg=606060 bg=null b=false i=false bgo=null//common styles
+
+    NfxLaconfToken       {fg=ff2020 bg=ffff20 b=false i=false bgo=1}
+    ExpressionToken      {fg=ff2020 bg=ffff20 b=false i=false bgo=1}
+    ExpressionBraceToken {fg=9400D3 bg=FFFF00 b=false i=false bgo=1}    
+    KeyWordBraceToken    {fg=0000ff bg=null   b=false i=false bgo=null}     
+    BraceToken           {fg=D2691E bg=null   b=false i=false bgo=null}  
+    LiteralToken         {fg=A0522D bg=null   b=false i=false bgo=null}  
+    CommentToken         {fg=008000 bg=null   b=false i=false bgo=null}  
+    SpecialToken         {fg=000080 bg=null   b=true  i=false bgo=null}  
+    AreaToken            {fg=null   bg=FF8C00 b=true  i=false bgo=0,2}  
+    StatementAreaToken   {fg=null   bg=8A2BE2 b=true  i=false bgo=0,2}  
+    ExpressionAreaToken  {fg=null   bg=000080 b=true  i=false bgo=0,2}
+    
+    Group1Token {fg=0000FF bg=null b=false i=false bgo=null} 
+    Group2Token {fg=0080C0 bg=null b=false i=false bgo=null}  
+    Group3Token {fg=0080C0 bg=null b=false i=false bgo=null} 
+    Group4Token {fg=BF0000 bg=null b=false i=false bgo=null} 
+    Group5Token {fg=D56A00 bg=null b=false i=false bgo=null} 
+    Group6Token {fg=448800 bg=null b=false i=false bgo=null}  
+    Group7Token {fg=AC3369 bg=null b=false i=false bgo=null}  
+  }
+
+  keywords
+  {
+    group1="behaviors,log,data-store,object-store,instrumentation,glue,security,messaging,web-settings,system,localization,starters,gv"
+    group2="providers,bindings,client-inspectors,server-inspectors,servers,users,mailer,social,starter"
+    group3="binding,destination,server,provider,client-transport,server-transport,inspector,user,rights,gate,rule,incoming,outgoing,filter,handler,portal,theme,dispatcher"
+    group4="name,type,order,description,enabled,_override"
+    group5="area,partition,shard,match,var,log-level,schema-name,bank-name,paths,types,services"
+    group6="start-gdid,primary-cs,secondary-cs,application-name"
+    group7="target-name,script-assembly,handler-location,type-location,assembly,ns,type-ns-prefix"
+    keyword="string,get,set,render,class"
+  }
+ }

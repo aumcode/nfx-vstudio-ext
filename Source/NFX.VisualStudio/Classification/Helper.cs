@@ -3,6 +3,7 @@ using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using NFX.CodeAnalysis;
 using System.Text;
+using System.Collections.Generic;
 
 namespace NFX.VisualStudio
 {
@@ -24,13 +25,27 @@ namespace NFX.VisualStudio
       return ow.OutputWindowPanes.Add("NfxPane");
     }
   }
-  internal class TaskManager : DisposableObject
+  internal class TaskManager
   {
-    private static ErrorListProvider m_ErrorListProvider;
+    private ErrorListProvider m_ErrorListProvider;
+    private WindowEvents m_windowEvents;
+    private readonly string m_DocName;
 
     public TaskManager(SVsServiceProvider serviceProvider)
     {
+      var _vsObject = (DTE)Package.GetGlobalService(typeof(DTE));
+      EnvDTE.Window _editorWindow = null;
+      m_DocName = _vsObject.ActiveDocument.Name;
+
+      m_windowEvents = _vsObject.Events.get_WindowEvents(_editorWindow);
+      m_windowEvents.WindowClosing += OnWindowClosing;
+
       m_ErrorListProvider = new ErrorListProvider(serviceProvider);
+    }
+
+    void OnWindowClosing(Window Window)
+    {
+      Refresh();
     }
 
     public void AddError(Message message)
@@ -50,14 +65,24 @@ namespace NFX.VisualStudio
 
     public void Refresh()
     {
-      if(m_ErrorListProvider != null)
-      m_ErrorListProvider.Tasks.Clear();
+      if (m_ErrorListProvider == null) return;
+
+      var tasks = new List<ErrorTask>();
+      foreach (ErrorTask task in m_ErrorListProvider.Tasks)
+      {
+        if (task.Document.Equals(m_DocName))
+          tasks.Add(task);
+      }
+      foreach (var t in tasks)
+      {
+        m_ErrorListProvider.Tasks.Remove(t);
+      }
     }
 
     private void AddTask(Message message, TaskErrorCategory category)
     {
-      if(m_ErrorListProvider == null)
-      return;
+      if (m_ErrorListProvider == null)
+        return;
       var error = new ErrorTask
       {
         Category = TaskCategory.User,
@@ -68,7 +93,8 @@ namespace NFX.VisualStudio
 
         Column = message.Position.ColNumber,
         Line = message.Position.LineNumber,
-        Document = message.SourceCodeReference.SourceName
+        Document = m_DocName,
+        CanDelete = true
       };
 
       if (message.Token != null)
@@ -78,14 +104,6 @@ namespace NFX.VisualStudio
       }
 
       m_ErrorListProvider.Tasks.Add(error);
-    }
-
-    protected override void Destructor()
-    {
-      if (m_ErrorListProvider != null && m_ErrorListProvider.Tasks != null)
-        m_ErrorListProvider.Tasks.Clear();
-      DisposeAndNull(ref m_ErrorListProvider);
-      base.Destructor();
     }
   }
 

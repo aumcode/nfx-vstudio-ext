@@ -9,9 +9,8 @@ namespace NFX.VisualStudio
 {
   [ContentType(Constants.NFX)]
   [TagType(typeof(IClassificationTag))]
-  [TagType(typeof(IErrorTag))]
   [Export(typeof(ITaggerProvider))]
-  internal sealed class NhtTaggerProvider : DisposableObject, ITaggerProvider
+  internal sealed class NhtTaggerProvider : ITaggerProvider
   {
     [Export]
     [BaseDefinition("htmlx")]
@@ -38,17 +37,48 @@ namespace NFX.VisualStudio
     [Import]
     internal SVsServiceProvider ServiceProvider { get; set; }
 
-    internal TaskManager m_TaskManager;
+    public ITagger<T> CreateTagger<T>(ITextBuffer buffer) where T : ITag
+    {
+      var taskManager = new TaskManager(ServiceProvider);
+      return new NhtTagger(ClassificationTypeRegistry, BufferFactory, TagAggregatorFactoryService, ContentTypeRegistryService, taskManager) as ITagger<T>;
+    } 
+  }
+
+
+  [ContentType(Constants.NFX)]
+  [TagType(typeof(IErrorTag))]
+  [Export(typeof(ITaggerProvider))]
+  internal sealed class NhtErrorTaggerProvider : ITaggerProvider
+  {
+    [Export]
+    [BaseDefinition("text")]
+    [Name(Constants.NFX)]
+    internal static ContentTypeDefinition NfxContentType { get; set; }
+
+    [Export]
+    [FileExtension(".nht")]
+    [ContentType(Constants.NFX)]
+    internal static FileExtensionToContentTypeDefinition NfxFileType { get; set; }
+
+    [Import]
+    internal IClassificationTypeRegistryService ClassificationTypeRegistry { get; set; }
+
+    [Import]
+    internal IBufferTagAggregatorFactoryService TagAggregatorFactoryService { get; set; }
+
+    [Import]
+    internal ITextBufferFactoryService BufferFactory { get; set; }
+
+    [Import]
+    internal IContentTypeRegistryService ContentTypeRegistryService { get; set; }
+
+    [Import]
+    internal SVsServiceProvider ServiceProvider { get; set; }
 
     public ITagger<T> CreateTagger<T>(ITextBuffer buffer) where T : ITag
     {
-      m_TaskManager = new TaskManager(ServiceProvider);
-      return new NhtTagger(ClassificationTypeRegistry, BufferFactory, TagAggregatorFactoryService, ContentTypeRegistryService, m_TaskManager) as ITagger<T>;
-    }
-    protected override void Destructor()
-    {
-      DisposeAndNull(ref m_TaskManager);
-      base.Destructor();
+      var taskManager = new TaskManager(ServiceProvider);
+      return new NhtErrorTagger(ClassificationTypeRegistry, BufferFactory, TagAggregatorFactoryService, ContentTypeRegistryService, taskManager) as ITagger<T>;
     }
   }
 }       

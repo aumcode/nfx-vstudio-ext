@@ -8,7 +8,6 @@
         Statement,
         ExpressionBrace,
         KeyWord,
-        Error,
         Brace,
         Literal,
         Comment,

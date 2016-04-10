@@ -146,8 +146,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Caret\EditCommandFilter.cs" />
-    <Compile Include="Caret\EditFilterProvider.cs" />
+    <Compile Include="Configurator.cs" />
+    <Compile Include="vs2012\Caret\EditCommandFilter.cs" />
+    <Compile Include="vs2012\Caret\EditFilterProvider.cs" />
     <Compile Include="Classification\ClassificationFormat.cs" />
     <Compile Include="Classification\Classifier.cs" />
     <Compile Include="vs2012\NhtTaggerProvider.cs" />
@@ -155,10 +156,11 @@
     <Compile Include="Classification\ClassificationDefinition.cs" />
     <Compile Include="Classification\Helper.cs" />
     <Compile Include="Classification\LaconicTagProvider.cs" />
-    <Compile Include="Classification\TokenTypes.cs" />
+    <Compile Include="TokenTypes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="config.laconf" />
     <None Include="vs2012\source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
