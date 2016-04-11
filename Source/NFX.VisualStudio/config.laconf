@@ -7,14 +7,14 @@
     NfxLaconfToken       {fg=ff2020 bg=ffff20 b=false i=false bgo=1}
     ExpressionToken      {fg=ff2020 bg=ffff20 b=false i=false bgo=1}
     ExpressionBraceToken {fg=9400D3 bg=FFFF00 b=false i=false bgo=1}    
-    KeyWordBraceToken    {fg=0000ff bg=null   b=false i=false bgo=null}     
+    KeyWordBraceToken    {fg=0000ff bg=null   b=false i=false bgo=null}  
     BraceToken           {fg=D2691E bg=null   b=false i=false bgo=null}  
     LiteralToken         {fg=A0522D bg=null   b=false i=false bgo=null}  
     CommentToken         {fg=008000 bg=null   b=false i=false bgo=null}  
     SpecialToken         {fg=000080 bg=null   b=true  i=false bgo=null}  
-    AreaToken            {fg=null   bg=FF8C00 b=true  i=false bgo=0,2}  
-    StatementAreaToken   {fg=null   bg=8A2BE2 b=true  i=false bgo=0,2}  
-    ExpressionAreaToken  {fg=null   bg=000080 b=true  i=false bgo=0,2}
+    AreaToken            {fg=null   bg=FF8C00 b=true  i=false bgo=0.2}  
+    StatementAreaToken   {fg=null   bg=8A2BE2 b=true  i=false bgo=0.2}  
+    ExpressionAreaToken  {fg=null   bg=000080 b=true  i=false bgo=0.2}
     
     Group1Token {fg=0000FF bg=null b=false i=false bgo=null} 
     Group2Token {fg=0080C0 bg=null b=false i=false bgo=null}  

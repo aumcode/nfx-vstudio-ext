@@ -48,8 +48,7 @@ namespace NFX.VisualStudio
 
     public ITagger<T> CreateTagger<T>(ITextBuffer buffer) where T : ITag
     {
-      var taskManager = new TaskManager(ServiceProvider);
-      return new LaconicClassifier(ClassificationTypeRegistry, BufferFactory, TagAggregatorFactoryService, taskManager) as ITagger<T>;
+      return new LaconicClassifier(ClassificationTypeRegistry, BufferFactory, TagAggregatorFactoryService) as ITagger<T>;
     }
   }
 
@@ -87,8 +86,9 @@ namespace NFX.VisualStudio
 
     public ITagger<T> CreateTagger<T>(ITextBuffer buffer) where T : ITag
     {
-      var taskManager = new TaskManager(ServiceProvider);
-      return new LaconicErrorClassifier(ClassificationTypeRegistry, BufferFactory, TagAggregatorFactoryService, taskManager) as ITagger<T>;
+      TaskManager.InitTaskManager(ServiceProvider);
+
+      return new LaconicErrorClassifier(ClassificationTypeRegistry, BufferFactory, TagAggregatorFactoryService) as ITagger<T>;
     }
   }
 }

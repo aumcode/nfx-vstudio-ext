@@ -147,6 +147,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classification\LaconicClassifier.cs" />
+    <Compile Include="Classification\TaskManger.cs" />
     <Compile Include="Configurator.cs" />
     <Compile Include="vs2012\Caret\EditCommandFilter.cs" />
     <Compile Include="vs2012\Caret\EditFilterProvider.cs" />

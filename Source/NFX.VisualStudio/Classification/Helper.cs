@@ -1,7 +1,6 @@
 ﻿using System;
 using EnvDTE;
 using Microsoft.VisualStudio.Shell;
-using NFX.CodeAnalysis;
 using System.Text;
 
 namespace NFX.VisualStudio
@@ -24,69 +23,7 @@ namespace NFX.VisualStudio
       return ow.OutputWindowPanes.Add("NfxPane");
     }
   }
-  internal class TaskManager
-  {
-    private ErrorListProvider m_ErrorListProvider;
-    private readonly string m_DocName;
-
-    public TaskManager(SVsServiceProvider serviceProvider)
-    {
-      var _vsObject = (DTE)Package.GetGlobalService(typeof(DTE));
-      m_DocName = _vsObject.ActiveWindow.Caption;
-
-     m_ErrorListProvider = new ErrorListProvider(serviceProvider);
-    }
-
-    public void AddError(Message message)
-    {
-      AddTask(message, TaskErrorCategory.Error);
-    }
-
-    public void AddWarning(Message message)
-    {
-      AddTask(message, TaskErrorCategory.Warning);
-    }
-
-    public void AddMessage(Message message)
-    {
-      AddTask(message, TaskErrorCategory.Message);
-    }
-
-    public void Refresh()
-    {
-      if (m_ErrorListProvider == null) return;
-
-      m_ErrorListProvider.Tasks.Clear();
-    }
-
-    private void AddTask(Message message, TaskErrorCategory category)
-    {
-      if (m_ErrorListProvider == null)
-        return;
-      var error = new ErrorTask
-      {
-        Category = TaskCategory.User,
-        ErrorCategory = category,
-        Text = message.From.MessageCodeToString(message.Code) +
-        ((!string.IsNullOrWhiteSpace(message.Text)) ? "\"" + message.Text + "\"" : string.Empty) +
-        ((message.AssociatedException != null) ? message.AssociatedException.ToMessageWithType() : string.Empty),
-
-        Column = message.Position.ColNumber,
-        Line = message.Position.LineNumber,
-        Document = m_DocName,
-        
-        CanDelete = true
-      };
-
-      if (message.Token != null)
-      {
-        error.Column = message.Token.StartPosition.ColNumber;
-        error.Line = message.Token.StartPosition.LineNumber;
-      }
-
-      m_ErrorListProvider.Tasks.Add(error);
-    }
-  }
+ 
 
   public static class Helper
   {

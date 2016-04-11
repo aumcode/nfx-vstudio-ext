@@ -11,9 +11,8 @@ namespace NFX.VisualStudio
     internal LaconicClassifier(
       IClassificationTypeRegistryService typeService,
       ITextBufferFactoryService bufferFactory,
-      IBufferTagAggregatorFactoryService tagAggregatorFactoryService,
-      TaskManager taskManager)
-      : base(typeService, bufferFactory, tagAggregatorFactoryService, taskManager)
+      IBufferTagAggregatorFactoryService tagAggregatorFactoryService)
+      : base(typeService, bufferFactory, tagAggregatorFactoryService)
     {
     }
 
@@ -56,9 +55,8 @@ namespace NFX.VisualStudio
     internal LaconicErrorClassifier(
       IClassificationTypeRegistryService typeService,
       ITextBufferFactoryService bufferFactory,
-      IBufferTagAggregatorFactoryService tagAggregatorFactoryService,
-      TaskManager taskManager)
-      : base(typeService, bufferFactory, tagAggregatorFactoryService, taskManager)
+      IBufferTagAggregatorFactoryService tagAggregatorFactoryService)
+      : base(typeService, bufferFactory, tagAggregatorFactoryService)
     {
     }
     public event EventHandler<SnapshotSpanEventArgs> TagsChanged;

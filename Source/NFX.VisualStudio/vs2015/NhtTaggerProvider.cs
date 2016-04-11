@@ -39,8 +39,9 @@ namespace NFX.VisualStudio
 
     public ITagger<T> CreateTagger<T>(ITextBuffer buffer) where T : ITag
     {
-      var taskManager = new TaskManager(ServiceProvider);
-      return new NhtTagger(ClassificationTypeRegistry, BufferFactory, TagAggregatorFactoryService, ContentTypeRegistryService, taskManager) as ITagger<T>;
+      TaskManager.InitTaskManager(ServiceProvider);
+
+      return new NhtTagger(ClassificationTypeRegistry, BufferFactory, TagAggregatorFactoryService, ContentTypeRegistryService) as ITagger<T>;
     } 
   }
 
@@ -72,8 +73,9 @@ namespace NFX.VisualStudio
 
     public ITagger<T> CreateTagger<T>(ITextBuffer buffer) where T : ITag
     {
-      var taskManager = new TaskManager(ServiceProvider);
-      return new NhtErrorTagger(ClassificationTypeRegistry, BufferFactory, TagAggregatorFactoryService, ContentTypeRegistryService, taskManager) as ITagger<T>;
+      TaskManager.InitTaskManager(ServiceProvider);
+
+      return new NhtErrorTagger(ClassificationTypeRegistry, BufferFactory, TagAggregatorFactoryService, ContentTypeRegistryService) as ITagger<T>;
     }
   }
 }       

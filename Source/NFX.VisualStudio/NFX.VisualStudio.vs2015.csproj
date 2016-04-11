@@ -52,6 +52,7 @@
     <Compile Include="Classification\Classifier.cs" />
     <Compile Include="Classification\LaconicClassifier.cs" />
     <Compile Include="Configurator.cs" />
+    <Compile Include="TaskManger.cs" />
     <Compile Include="TokenTypes.cs" />
     <Compile Include="vs2015\NhtTaggerProvider.cs" />
     <Compile Include="Classification\NhtClassifier.cs" />

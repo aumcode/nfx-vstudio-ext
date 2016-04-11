@@ -31,13 +31,10 @@ namespace NFX.VisualStudio
     protected Classifier(
       IClassificationTypeRegistryService typeService,
       ITextBufferFactoryService bufferFactoryService,
-      IBufferTagAggregatorFactoryService tagAggregatorFactoryService,
-      TaskManager taskManager)
+      IBufferTagAggregatorFactoryService tagAggregatorFactoryService)
     {
       m_BufferFactoryService = bufferFactoryService;
       m_TagAggregatorFactoryService = tagAggregatorFactoryService;
-
-      m_TaskManger = taskManager;
 
       m_NfxTypes = new Dictionary<NfxTokenTypes, IClassificationType>();
       m_NfxTypes.Add(NfxTokenTypes.Laconf, typeService.GetClassificationType(Constants.LACONF_TOKEN_NAME));
@@ -63,7 +60,6 @@ namespace NFX.VisualStudio
 
       var _vsObject = (DTE)Package.GetGlobalService(typeof(DTE));
       Window _editorWindow = null;
-      m_DocName = _vsObject.ActiveWindow.Caption;
 
       m_windowEvents = _vsObject.Events.get_WindowEvents(_editorWindow);
       m_windowEvents.WindowClosing += OnWindowClosing;
@@ -73,16 +69,27 @@ namespace NFX.VisualStudio
     protected readonly ITextBufferFactoryService m_BufferFactoryService;
     protected readonly IBufferTagAggregatorFactoryService m_TagAggregatorFactoryService;
     protected ITextSnapshot m_Snapshot;
-    protected readonly TaskManager m_TaskManger;
     protected object ts_LockObject = new object();
 
     private WindowEvents m_windowEvents;
-    private readonly string m_DocName;
-                          
+    private string m_DocName;
+    private string DocName
+    {
+      get
+      {
+        if (m_DocName.IsNotNullOrEmpty()) return m_DocName;
+
+        var _vsObject = (DTE)Package.GetGlobalService(typeof(DTE));
+        m_DocName = _vsObject.ActiveWindow.Document.FullName;
+
+        return m_DocName;
+      }
+    }
+
     void OnWindowClosing(Window Window)
     {
-      if (Window.Caption.Equals(m_DocName))
-        m_TaskManger.Refresh();
+      if (Window.Caption.Equals(DocName))
+        TaskManager.Refresh(DocName);
     }
 
     protected void FindPropTags(List<ITagSpan<IClassificationTag>> tags, IContentType contetType, string textSpan, int bufferStartPosition)
@@ -139,7 +146,7 @@ namespace NFX.VisualStudio
       if (Configurator.GetGroupKeywords(type.ToString()).Any(word.Compare))
       {
         var w = word.ToString();
-        tags.Add(CreateTagSpan(currenPosition - w.Length , w.Length, type));
+        tags.Add(CreateTagSpan(currenPosition - w.Length, w.Length, type));
       }
     }
 
@@ -167,30 +174,33 @@ namespace NFX.VisualStudio
         else if (token.IsLiteral)
           curType = NfxTokenTypes.Literal;
 
-        if (Configurator.GetGroupKeywords(NfxTokenTypes.Group1.ToString()).Contains(token.Text))
-          curType = NfxTokenTypes.Group1;
+        if (!curType.HasValue ||
+          (curType != NfxTokenTypes.Comment && curType != NfxTokenTypes.Literal))
+        {
+          if (Configurator.GetGroupKeywords(NfxTokenTypes.Group1.ToString()).Contains(token.Text))
+            curType = NfxTokenTypes.Group1;
 
-        if (Configurator.GetGroupKeywords(NfxTokenTypes.Group2.ToString()).Contains(token.Text))
-          curType = NfxTokenTypes.Group2;
+          if (Configurator.GetGroupKeywords(NfxTokenTypes.Group2.ToString()).Contains(token.Text))
+            curType = NfxTokenTypes.Group2;
 
-        if (Configurator.GetGroupKeywords(NfxTokenTypes.Group3.ToString()).Contains(token.Text))
-          curType = NfxTokenTypes.Group3;
+          if (Configurator.GetGroupKeywords(NfxTokenTypes.Group3.ToString()).Contains(token.Text))
+            curType = NfxTokenTypes.Group3;
 
-        if (Configurator.GetGroupKeywords(NfxTokenTypes.Group4.ToString()).Contains(token.Text))
-          curType = NfxTokenTypes.Group4;
+          if (Configurator.GetGroupKeywords(NfxTokenTypes.Group4.ToString()).Contains(token.Text))
+            curType = NfxTokenTypes.Group4;
 
-        if (Configurator.GetGroupKeywords(NfxTokenTypes.Group5.ToString()).Contains(token.Text))
-          curType = NfxTokenTypes.Group5;
+          if (Configurator.GetGroupKeywords(NfxTokenTypes.Group5.ToString()).Contains(token.Text))
+            curType = NfxTokenTypes.Group5;
 
-        if (Configurator.GetGroupKeywords(NfxTokenTypes.Group6.ToString()).Contains(token.Text))
-          curType = NfxTokenTypes.Group6;
+          if (Configurator.GetGroupKeywords(NfxTokenTypes.Group6.ToString()).Contains(token.Text))
+            curType = NfxTokenTypes.Group6;
 
-        if (Configurator.GetGroupKeywords(NfxTokenTypes.Group7.ToString()).Contains(token.Text))
-          curType = NfxTokenTypes.Group7;
-
+          if (Configurator.GetGroupKeywords(NfxTokenTypes.Group7.ToString()).Contains(token.Text))
+            curType = NfxTokenTypes.Group7;
+        }
 
         if (curType.HasValue)
-          classifierTags.Add(CreateTagSpan(startPosition + token.StartPosition.CharNumber - 1, token.Text.Length, curType.Value));
+          classifierTags.Add(CreateTagSpan(startPosition + token.StartPosition.CharNumber - 1, token.EndPosition.CharNumber - token.StartPosition.CharNumber + 1, curType.Value));
       }
     }
 
@@ -205,16 +215,24 @@ namespace NFX.VisualStudio
       var ctx = new LaconfigData(cfg);
       var p = new LaconfigParser(ctx, lxr, ml);
       p.Parse();
-      m_TaskManger.Refresh();
+      TaskManager.Refresh(DocName);
       foreach (var message in ml)
       {
-        m_TaskManger.AddError(message);
-        var start = message.Token == null ? 0 :
-          message.Token.StartPosition.CharNumber > 4
-            ? message.Token.StartPosition.CharNumber - 5 : 0;
+        TaskManager.AddError(message, DocName);
 
-        var length = message.Token == null ? src.Length - 1 :
-          src.Length - start > 10 ? 10 : src.Length - start;
+
+        var start = message.Token == null ?
+          message.Position.CharNumber :
+          message.Token.StartPosition.CharNumber > 4 ?
+            message.Token.StartPosition.CharNumber - 5 :
+            0;
+
+        var length = message.Token == null ?
+          src.Length - 1 - start :
+          src.Length - start > 10 ?
+            10 :
+            src.Length - start;
+
         tags.Add(CreateTagSpan(start, length));
       }
     }

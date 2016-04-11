@@ -13,9 +13,8 @@ namespace NFX.VisualStudio
       IClassificationTypeRegistryService typeService,
       ITextBufferFactoryService bufferFactory,
       IBufferTagAggregatorFactoryService tagAggregatorFactoryService,
-      IContentTypeRegistryService contentTypeRegistryService,
-      TaskManager taskManager)
-      : base(typeService, bufferFactory, tagAggregatorFactoryService, taskManager)
+      IContentTypeRegistryService contentTypeRegistryService)
+      : base(typeService, bufferFactory, tagAggregatorFactoryService)
     {
       m_CssContentType = contentTypeRegistryService.GetContentType("css");
       m_JavaScripContentType = contentTypeRegistryService.GetContentType("JavaScript");
@@ -221,9 +220,8 @@ namespace NFX.VisualStudio
       IClassificationTypeRegistryService typeService,
       ITextBufferFactoryService bufferFactory,
       IBufferTagAggregatorFactoryService tagAggregatorFactoryService,
-      IContentTypeRegistryService contentTypeRegistryService,
-      TaskManager taskManager)
-      : base(typeService, bufferFactory, tagAggregatorFactoryService, taskManager) {  }
+      IContentTypeRegistryService contentTypeRegistryService)
+      : base(typeService, bufferFactory, tagAggregatorFactoryService) {  }
                                        
     public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 

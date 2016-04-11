@@ -36,7 +36,7 @@ namespace NFX.VisualStudio
         lock (s_Lock)
         {
           if (s_Root == null)
-          {
+          { 
             var path = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData);
             path = Path.Combine(path, "nfx", "vs-ext");
             var fPath = Path.Combine(path, "config");

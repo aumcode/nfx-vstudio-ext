@@ -1,14 +1,17 @@
 ﻿using System.ComponentModel.Composition;
-using System.Windows.Media;
 using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.Utilities;
+using System.Globalization;
+using System.Threading;
 
 namespace NFX.VisualStudio
 {
   public abstract class NFXClassificationFormatDef : ClassificationFormatDefinition
   {
     protected NFXClassificationFormatDef()
-    {
+    { 
+      Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+
       BackgroundColor = Configurator.ParseColor(Configurator.GetFormatAttr(this, Configurator.CONFIG_BACKCOLOR_ATTR));
       ForegroundColor = Configurator.ParseColor(Configurator.GetFormatAttr(this, Configurator.CONFIG_FORECOLOR_ATTR));
       IsBold =  Configurator.GetFormatAttr(this, Configurator.CONFIG_BOLD_ATTR).AsBool();
@@ -81,7 +84,7 @@ namespace NFX.VisualStudio
   [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.COMMENT_TOKEN_NAME)]
   [Name(Constants.COMMENT_TOKEN_NAME)]
   [UserVisible(true)]
-  [Order(Before = Priority.High)]
+  [Order(Before = Priority.High,After = Priority.High)]
   internal sealed class CommentToken : NFXClassificationFormatDef
   {
     public CommentToken(): base() { }
@@ -131,7 +134,7 @@ namespace NFX.VisualStudio
   [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.GROUP_1_TOKEN_NAME)]
   [Name(Constants.GROUP_1_TOKEN_NAME)]
   [UserVisible(true)]
-  [Order(Before = Priority.High)]
+  [Order(Before = Priority.Default)]
   internal sealed class Group1Token : NFXClassificationFormatDef
   {
     public Group1Token() : base() { }
@@ -141,7 +144,7 @@ namespace NFX.VisualStudio
   [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.GROUP_2_TOKEN_NAME)]
   [Name(Constants.GROUP_2_TOKEN_NAME)]
   [UserVisible(true)]
-  [Order(Before = Priority.High)]
+  [Order(Before = Priority.Default)]
   internal sealed class Group2Token : NFXClassificationFormatDef
   {
     public Group2Token() : base() { }
@@ -151,7 +154,7 @@ namespace NFX.VisualStudio
   [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.GROUP_3_TOKEN_NAME)]
   [Name(Constants.GROUP_3_TOKEN_NAME)]
   [UserVisible(true)]
-  [Order(Before = Priority.High)]
+  [Order(Before = Priority.Default)]
   internal sealed class Group3Token : NFXClassificationFormatDef
   {
     public Group3Token() : base() { }
@@ -161,7 +164,7 @@ namespace NFX.VisualStudio
   [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.GROUP_4_TOKEN_NAME)]
   [Name(Constants.GROUP_4_TOKEN_NAME)]
   [UserVisible(true)]
-  [Order(Before = Priority.High)]
+  [Order(Before = Priority.Default)]
   internal sealed class Group4Token : NFXClassificationFormatDef
   {
     public Group4Token() : base() { }
@@ -171,7 +174,7 @@ namespace NFX.VisualStudio
   [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.GROUP_5_TOKEN_NAME)]
   [Name(Constants.GROUP_5_TOKEN_NAME)]
   [UserVisible(true)]
-  [Order(Before = Priority.High)]
+  [Order(Before = Priority.Default)]
   internal sealed class Group5Token : NFXClassificationFormatDef
   {
     public Group5Token() : base() { }
@@ -181,7 +184,7 @@ namespace NFX.VisualStudio
   [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.GROUP_6_TOKEN_NAME)]
   [Name(Constants.GROUP_6_TOKEN_NAME)]
   [UserVisible(true)]
-  [Order(Before = Priority.High)]
+  [Order(Before = Priority.Default)]
   internal sealed class Group6Token : NFXClassificationFormatDef
   {
     public Group6Token() : base() { }
@@ -191,7 +194,7 @@ namespace NFX.VisualStudio
   [ClassificationType(ClassificationTypeNames = Constants.NFX + Constants.GROUP_7_TOKEN_NAME)]
   [Name(Constants.GROUP_7_TOKEN_NAME)]
   [UserVisible(true)]
-  [Order(Before = Priority.High)]
+  [Order(Before = Priority.Default)]
   internal sealed class Group7Token : NFXClassificationFormatDef
   {
     public Group7Token() : base() { }
