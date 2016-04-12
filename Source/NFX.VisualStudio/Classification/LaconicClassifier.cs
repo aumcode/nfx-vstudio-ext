@@ -5,54 +5,10 @@ using System;
 using System.Collections.Generic;
 
 namespace NFX.VisualStudio
-{
-  internal sealed class LaconicClassifier : Classifier, ITagger<IClassificationTag>
+{ 
+  internal sealed class LaconicClassifier : Classifier, ITagger<IErrorTag> , ITagger<IClassificationTag>
   {
     internal LaconicClassifier(
-      IClassificationTypeRegistryService typeService,
-      ITextBufferFactoryService bufferFactory,
-      IBufferTagAggregatorFactoryService tagAggregatorFactoryService)
-      : base(typeService, bufferFactory, tagAggregatorFactoryService)
-    {
-    }
-
-    public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
-    private List<ITagSpan<IClassificationTag>> m_Oldtags;
-
-    public IEnumerable<ITagSpan<IClassificationTag>> GetTags(NormalizedSnapshotSpanCollection spans)
-    {
-      var tags = new List<ITagSpan<IClassificationTag>>();
-
-      if (spans.Count < 1)
-        return tags;
-      var newSpanshot = spans[0].Snapshot;
-      if (m_Snapshot == newSpanshot)
-        return m_Oldtags;
-
-      m_Snapshot = newSpanshot;
-
-      var text = new SnapshotSpan(m_Snapshot, new Span(0, m_Snapshot.Length)).GetText();
-      GetLaconicTags(ref tags, text);
-      SynchronousUpdate(m_Snapshot);
-
-      m_Oldtags = tags;
-      return tags;
-    }
-
-    void SynchronousUpdate(ITextSnapshot snapshotSpan)
-    {
-      lock (ts_LockObject)
-      {
-        var t = TagsChanged;
-        if (t != null)
-          TagsChanged.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(snapshotSpan, 0, snapshotSpan.Length)));
-      }
-    }
-  }
-
-  internal sealed class LaconicErrorClassifier : Classifier, ITagger<IErrorTag>
-  {
-    internal LaconicErrorClassifier(
       IClassificationTypeRegistryService typeService,
       ITextBufferFactoryService bufferFactory,
       IBufferTagAggregatorFactoryService tagAggregatorFactoryService)
@@ -62,6 +18,7 @@ namespace NFX.VisualStudio
     public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 
     private List<ITagSpan<IErrorTag>> m_ErrorTags = new List<ITagSpan<IErrorTag>>();
+    private List<ITagSpan<IClassificationTag>> m_ClassTags = new List<ITagSpan<IClassificationTag>>();
 
     public IEnumerable<ITagSpan<IErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans)
     {
@@ -91,6 +48,26 @@ namespace NFX.VisualStudio
         if (t != null)
           t.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(snapshotSpan, 0, snapshotSpan.Length)));
       }
+    }
+
+    IEnumerable<ITagSpan<IClassificationTag>> ITagger<IClassificationTag>.GetTags(NormalizedSnapshotSpanCollection spans)
+    {
+      var tags = new List<ITagSpan<IClassificationTag>>();
+
+      if (spans.Count < 1)
+        return tags;
+      var newSpanshot = spans[0].Snapshot;
+      if (m_Snapshot == newSpanshot)
+        return m_ClassTags;
+
+      m_Snapshot = newSpanshot;
+
+      var text = new SnapshotSpan(m_Snapshot, new Span(0, m_Snapshot.Length)).GetText();
+      GetLaconicTags(ref tags, text);
+      SynchronousUpdate(m_Snapshot);
+
+      m_ClassTags = tags;
+      return tags;
     }
   }
 }

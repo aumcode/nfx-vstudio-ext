@@ -55,8 +55,7 @@ namespace NFX.VisualStudio
       m_NfxTypes.Add(NfxTokenTypes.Group4, typeService.GetClassificationType(Constants.GROUP_4_TOKEN_NAME));
       m_NfxTypes.Add(NfxTokenTypes.Group5, typeService.GetClassificationType(Constants.GROUP_5_TOKEN_NAME));
       m_NfxTypes.Add(NfxTokenTypes.Group6, typeService.GetClassificationType(Constants.GROUP_6_TOKEN_NAME));
-      m_NfxTypes.Add(NfxTokenTypes.Group7, typeService.GetClassificationType(Constants.GROUP_7_TOKEN_NAME));
-
+      m_NfxTypes.Add(NfxTokenTypes.Group7, typeService.GetClassificationType(Constants.GROUP_7_TOKEN_NAME));  
 
       var _vsObject = (DTE)Package.GetGlobalService(typeof(DTE));
       Window _editorWindow = null;
@@ -80,7 +79,10 @@ namespace NFX.VisualStudio
         if (m_DocName.IsNotNullOrEmpty()) return m_DocName;
 
         var _vsObject = (DTE)Package.GetGlobalService(typeof(DTE));
-        m_DocName = _vsObject.ActiveWindow.Document.FullName;
+
+        m_DocName = _vsObject.ActiveWindow.Document != null ?
+                      _vsObject.ActiveWindow.Document.FullName :
+                      string.Empty;
 
         return m_DocName;
       }
@@ -105,10 +107,10 @@ namespace NFX.VisualStudio
         foreach (var mappingTagSpan in ts)
         {
           var anchor =
-            (SnapshotSpan)mappingTagSpan.Span.GetType()
-              .GetField("_anchor", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
-                                   | BindingFlags.Static)
-              .GetValue(mappingTagSpan.Span);
+          (SnapshotSpan)mappingTagSpan.Span.GetType()
+            .GetField("_anchor", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
+                                 | BindingFlags.Static)
+            .GetValue(mappingTagSpan.Span);
           tags.Add(
             new TagSpan<IClassificationTag>(
               new SnapshotSpan(m_Snapshot, bufferStartPosition + anchor.Start, anchor.Length + (contetType.TypeName == "css" ? 0 : 1)),

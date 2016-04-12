@@ -36,14 +36,21 @@ namespace NFX.VisualStudio
         lock (s_Lock)
         {
           if (s_Root == null)
-          { 
+          {
             var path = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData);
             path = Path.Combine(path, "nfx", "vs-ext");
             var fPath = Path.Combine(path, "config");
 
             if (!Directory.Exists(path))
             {
-              NFX.IOMiscUtils.EnsureAccessibleDirectory(path);
+              try
+              {
+                Directory.CreateDirectory(path);
+              }
+              catch
+              {
+                IOMiscUtils.EnsureAccessibleDirectory(path);
+              }
               var content = typeof(Configurator).GetText("config.laconf");
               File.WriteAllText(fPath + ".laconf", content);
             }

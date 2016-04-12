@@ -1,5 +1,4 @@
-﻿using EnvDTE;
-using Microsoft.VisualStudio;
+﻿using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.TextManager.Interop;
@@ -9,20 +8,35 @@ using System.Collections.Generic;
 
 namespace NFX.VisualStudio
 {
+
+  internal class ErrorHelper : IServiceProvider
+  {
+    private Guid m_Guid = Guid.NewGuid();
+
+    public object GetService(Type serviceType)
+    {
+      return Package.GetGlobalService(serviceType);
+    }
+
+    public ErrorListProvider GetErrorListProvider()
+    {
+      var provider = new ErrorListProvider(this);
+      provider.ProviderName = m_Guid.ToString();
+      provider.ProviderGuid = m_Guid;
+      return provider;
+    }
+  }
+
+
   internal class TaskManager
   {
     private static ErrorListProvider m_ErrorListProvider;
-    private static Guid m_Guid = Guid.NewGuid();
-    public static void InitTaskManager(SVsServiceProvider serviceProvider)
+    private static ErrorListProvider ErrorListProvider
     {
-      if (m_ErrorListProvider != null)
-        return;
-
-      var _vsObject = (DTE)Package.GetGlobalService(typeof(DTE));
-
-      m_ErrorListProvider = new ErrorListProvider(serviceProvider);
-      m_ErrorListProvider.ProviderGuid = m_Guid;
-      m_ErrorListProvider.ProviderName = m_Guid.ToString();
+      get
+      {
+        return m_ErrorListProvider ?? (m_ErrorListProvider = new ErrorHelper().GetErrorListProvider());
+      }
     }
 
     public static void AddError(Message message, string docName)
@@ -30,36 +44,24 @@ namespace NFX.VisualStudio
       AddTask(message, TaskErrorCategory.Error, docName);
     }
 
-    public static void AddWarning(Message message, string docName)
-    {
-      AddTask(message, TaskErrorCategory.Warning, docName);
-    }
-
-    public static void AddMessage(Message message, string docName)
-    {
-      AddTask(message, TaskErrorCategory.Message, docName);
-    }
-
     public static void Refresh(string docName)
-   {
-      if (m_ErrorListProvider == null || m_ErrorListProvider.Tasks == null) return;
-
+    { 
       var tasks = new List<Task>();
-      for (int i = 0; i < m_ErrorListProvider.Tasks.Count; i++)
+      for (int i = 0; i < ErrorListProvider.Tasks.Count; i++)
       {
-        if (m_ErrorListProvider.Tasks[i].Document.Equals(docName, StringComparison.OrdinalIgnoreCase))
-          tasks.Add(m_ErrorListProvider.Tasks[i]);
+        if (ErrorListProvider.Tasks[i].Document.Equals(docName, StringComparison.OrdinalIgnoreCase))
+          tasks.Add(ErrorListProvider.Tasks[i]);
       }
 
       for (int i = 0; i < tasks.Count; i++)
       {
-        m_ErrorListProvider.Tasks.Remove(tasks[i]);
+        ErrorListProvider.Tasks.Remove(tasks[i]);
       }
     }
 
     private static void AddTask(Message message, TaskErrorCategory category, string docName)
     {
-      if (m_ErrorListProvider == null) return;
+      if (ErrorListProvider == null) return;
 
       var error = new ErrorTask
       {
@@ -82,24 +84,16 @@ namespace NFX.VisualStudio
       if (docName.IsNotNullOrEmpty())
         error.Navigate += NavigateDocument;
 
-      m_ErrorListProvider.Tasks.Add(error);
-      m_ErrorListProvider.Show();
+      ErrorListProvider.Tasks.Add(error);
+      ErrorListProvider.Show();
     }
 
-    static void NavigateDocument(object sender, EventArgs e)
+    public static void NavigateDocument(object sender, EventArgs e)
     {
       Task task = sender as Task;
-      if (task == null)
-      {
-        throw new ArgumentException("sender");
-      }
-      //use the helper class to handle the navigation
-      OpenDocumentAndNavigateTo(task.Document, task.Line, task.Column);
-    }
+      if (task == null) return;
 
-    public static void OpenDocumentAndNavigateTo(string path, int line, int column)
-    {
-      IVsUIShellOpenDocument openDoc =
+      var openDoc =
           Package.GetGlobalService(typeof(IVsUIShellOpenDocument))
                   as IVsUIShellOpenDocument;
       if (openDoc == null)
@@ -110,9 +104,9 @@ namespace NFX.VisualStudio
       Microsoft.VisualStudio.OLE.Interop.IServiceProvider sp;
       IVsUIHierarchy hier;
       uint itemid;
-      Guid logicalView = VSConstants.LOGVIEWID_Code;
+      var logicalView = VSConstants.LOGVIEWID_Code;
       if (ErrorHandler.Failed(
-          openDoc.OpenDocumentViaProject(path, ref logicalView, out sp, out hier, out itemid, out frame))
+          openDoc.OpenDocumentViaProject(task.Document, ref logicalView, out sp, out hier, out itemid, out frame))
           || frame == null)
       {
         return;
@@ -120,11 +114,10 @@ namespace NFX.VisualStudio
       object docData;
       frame.GetProperty((int)__VSFPROPID.VSFPROPID_DocData, out docData);
 
-      // Get the VsTextBuffer  
-      VsTextBuffer buffer = docData as VsTextBuffer;
+      var buffer = docData as VsTextBuffer;
       if (buffer == null)
       {
-        IVsTextBufferProvider bufferProvider = docData as IVsTextBufferProvider;
+        var bufferProvider = docData as IVsTextBufferProvider;
         if (bufferProvider != null)
         {
           IVsTextLines lines;
@@ -137,14 +130,13 @@ namespace NFX.VisualStudio
           }
         }
       }
-      // Finally, perform the navigation.  
-      IVsTextManager mgr = Package.GetGlobalService(typeof(VsTextManagerClass))
+      var mgr = Package.GetGlobalService(typeof(VsTextManagerClass))
            as IVsTextManager;
       if (mgr == null)
       {
         return;
       }
-      mgr.NavigateToLineAndColumn(buffer, ref logicalView, line, column, line, column);
+      mgr.NavigateToLineAndColumn(buffer, ref logicalView, task.Line, task.Column, task.Line, task.Column);
     }
   }
 }
