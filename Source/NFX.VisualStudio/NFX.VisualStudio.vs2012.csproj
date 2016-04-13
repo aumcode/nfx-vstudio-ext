@@ -146,6 +146,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classification\BaseTaggerProvider.cs" />
     <Compile Include="Classification\LaconicClassifier.cs" />
     <Compile Include="Configurator.cs" />
     <Compile Include="TaskManger.cs" />

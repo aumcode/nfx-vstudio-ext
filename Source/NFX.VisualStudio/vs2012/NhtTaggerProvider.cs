@@ -12,7 +12,7 @@ namespace NFX.VisualStudio
   [TagType(typeof(IClassificationTag))]
   [TagType(typeof(IErrorTag))]
   [Export(typeof(ITaggerProvider))]
-  internal sealed class NhtTaggerProvider : ITaggerProvider
+  internal sealed class NhtTaggerProvider : BaseTaggerProvider, ITaggerProvider
   {
     [Export]
     [BaseDefinition("html")]
@@ -41,7 +41,7 @@ namespace NFX.VisualStudio
 
     public ITagger<T> CreateTagger<T>(ITextBuffer buffer) where T : ITag
     {
-      return new NhtTagger(ClassificationTypeRegistry, BufferFactory, TagAggregatorFactoryService, ContentTypeRegistryService) as ITagger<T>;
+      return GetTagger<T>(buffer, (docName) => { return new NhtTagger(ClassificationTypeRegistry, BufferFactory, TagAggregatorFactoryService, ContentTypeRegistryService, docName); });
     }
   }
 }

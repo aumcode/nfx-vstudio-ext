@@ -48,6 +48,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Classification\BaseTaggerProvider.cs" />
     <Compile Include="Classification\ClassificationFormat.cs" />
     <Compile Include="Classification\Classifier.cs" />
     <Compile Include="Classification\LaconicClassifier.cs" />
@@ -62,7 +63,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
     <EmbeddedResource Include="config.laconf" />
     <None Include="packages.config" />
   </ItemGroup>

@@ -13,8 +13,9 @@ namespace NFX.VisualStudio
       IClassificationTypeRegistryService typeService,
       ITextBufferFactoryService bufferFactory,
       IBufferTagAggregatorFactoryService tagAggregatorFactoryService,
-      IContentTypeRegistryService contentTypeRegistryService)
-      : base(typeService, bufferFactory, tagAggregatorFactoryService)
+      IContentTypeRegistryService contentTypeRegistryService,
+      string docName)
+      : base(typeService, bufferFactory, tagAggregatorFactoryService, docName)
     {
       m_CssContentType = contentTypeRegistryService.GetContentType("css");
       m_JavaScripContentType = contentTypeRegistryService.GetContentType("JavaScript");

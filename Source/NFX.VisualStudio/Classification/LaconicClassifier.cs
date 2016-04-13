@@ -11,8 +11,9 @@ namespace NFX.VisualStudio
     internal LaconicClassifier(
       IClassificationTypeRegistryService typeService,
       ITextBufferFactoryService bufferFactory,
-      IBufferTagAggregatorFactoryService tagAggregatorFactoryService)
-      : base(typeService, bufferFactory, tagAggregatorFactoryService)
+      IBufferTagAggregatorFactoryService tagAggregatorFactoryService,
+      string docName)
+      : base(typeService, bufferFactory, tagAggregatorFactoryService, docName)
     {
     }
     public event EventHandler<SnapshotSpanEventArgs> TagsChanged;

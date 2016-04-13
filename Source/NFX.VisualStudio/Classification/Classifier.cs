@@ -31,7 +31,8 @@ namespace NFX.VisualStudio
     protected Classifier(
       IClassificationTypeRegistryService typeService,
       ITextBufferFactoryService bufferFactoryService,
-      IBufferTagAggregatorFactoryService tagAggregatorFactoryService)
+      IBufferTagAggregatorFactoryService tagAggregatorFactoryService,
+      string docName)
     {
       m_BufferFactoryService = bufferFactoryService;
       m_TagAggregatorFactoryService = tagAggregatorFactoryService;
@@ -55,8 +56,9 @@ namespace NFX.VisualStudio
       m_NfxTypes.Add(NfxTokenTypes.Group4, typeService.GetClassificationType(Constants.GROUP_4_TOKEN_NAME));
       m_NfxTypes.Add(NfxTokenTypes.Group5, typeService.GetClassificationType(Constants.GROUP_5_TOKEN_NAME));
       m_NfxTypes.Add(NfxTokenTypes.Group6, typeService.GetClassificationType(Constants.GROUP_6_TOKEN_NAME));
-      m_NfxTypes.Add(NfxTokenTypes.Group7, typeService.GetClassificationType(Constants.GROUP_7_TOKEN_NAME));  
+      m_NfxTypes.Add(NfxTokenTypes.Group7, typeService.GetClassificationType(Constants.GROUP_7_TOKEN_NAME));
 
+      m_DocName = docName;
       var _vsObject = (DTE)Package.GetGlobalService(typeof(DTE));
       Window _editorWindow = null;
 
@@ -71,27 +73,12 @@ namespace NFX.VisualStudio
     protected object ts_LockObject = new object();
 
     private WindowEvents m_windowEvents;
-    private string m_DocName;
-    private string DocName
-    {
-      get
-      {
-        if (m_DocName.IsNotNullOrEmpty()) return m_DocName;
-
-        var _vsObject = (DTE)Package.GetGlobalService(typeof(DTE));
-
-        m_DocName = _vsObject.ActiveWindow.Document != null ?
-                      _vsObject.ActiveWindow.Document.FullName :
-                      string.Empty;
-
-        return m_DocName;
-      }
-    }
+    private readonly string m_DocName;
 
     void OnWindowClosing(Window Window)
     {
-      if (Window.Caption.Equals(DocName))
-        TaskManager.Refresh(DocName);
+      if (m_DocName.Contains(Window.Caption))
+        TaskManager.Refresh(m_DocName);
     }
 
     protected void FindPropTags(List<ITagSpan<IClassificationTag>> tags, IContentType contetType, string textSpan, int bufferStartPosition)
@@ -106,15 +93,14 @@ namespace NFX.VisualStudio
         var ts = ta.GetTags(snapshotSpan);
         foreach (var mappingTagSpan in ts)
         {
-          var anchor =
-          (SnapshotSpan)mappingTagSpan.Span.GetType()
-            .GetField("_anchor", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
-                                 | BindingFlags.Static)
-            .GetValue(mappingTagSpan.Span);
-          tags.Add(
-            new TagSpan<IClassificationTag>(
-              new SnapshotSpan(m_Snapshot, bufferStartPosition + anchor.Start, anchor.Length + (contetType.TypeName == "css" ? 0 : 1)),
-              mappingTagSpan.Tag));
+          var spans = mappingTagSpan.Span.GetSpans(buffer);
+          for (int i = 0; i < spans.Count; i++)
+          {
+            tags.Add(
+              new TagSpan<IClassificationTag>(
+                new SnapshotSpan(m_Snapshot, bufferStartPosition + spans[i].Start, spans[i].Length + (contetType.TypeName == "css" ? 0 : 1)),
+                mappingTagSpan.Tag));
+          }
         }
       }
     }
@@ -217,10 +203,10 @@ namespace NFX.VisualStudio
       var ctx = new LaconfigData(cfg);
       var p = new LaconfigParser(ctx, lxr, ml);
       p.Parse();
-      TaskManager.Refresh(DocName);
+      TaskManager.Refresh(m_DocName);
       foreach (var message in ml)
       {
-        TaskManager.AddError(message, DocName);
+        TaskManager.AddError(message, m_DocName);
 
 
         var start = message.Token == null ?

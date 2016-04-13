@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Utilities;
+using System.Collections.Generic;
 
 namespace NFX.VisualStudio
 {
@@ -10,7 +11,7 @@ namespace NFX.VisualStudio
   [TagType(typeof(IClassificationTag))]
   [TagType(typeof(IErrorTag))]
   [Export(typeof(ITaggerProvider))]
-  internal sealed class LaconicTagProvider : ITaggerProvider
+  internal sealed class LaconicTagProvider : BaseTaggerProvider, ITaggerProvider
   {
     [Export]
     [BaseDefinition("code")]
@@ -30,7 +31,7 @@ namespace NFX.VisualStudio
     [Export]
     [FileExtension(".acmb")]
     [ContentType("Laconic")]
-    internal static FileExtensionToContentTypeDefinition AcmbFileType { get; set; }   
+    internal static FileExtensionToContentTypeDefinition AcmbFileType { get; set; }
 
     [Import]
     internal IClassificationTypeRegistryService ClassificationTypeRegistry { get; set; }
@@ -39,11 +40,11 @@ namespace NFX.VisualStudio
     internal IBufferTagAggregatorFactoryService TagAggregatorFactoryService { get; set; }
 
     [Import]
-    internal ITextBufferFactoryService BufferFactory { get; set; }
+    internal ITextBufferFactoryService BufferFactory { get; set; }     
 
     public ITagger<T> CreateTagger<T>(ITextBuffer buffer) where T : ITag
-    {
-      return new LaconicClassifier(ClassificationTypeRegistry, BufferFactory, TagAggregatorFactoryService) as ITagger<T>;
+    {  
+      return GetTagger<T>(buffer, (docName) => { return new LaconicClassifier(ClassificationTypeRegistry, BufferFactory, TagAggregatorFactoryService, docName); });    
     }
   }
 }
